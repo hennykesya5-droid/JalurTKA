@@ -1,0 +1,242 @@
+```html
+<body>
+    <header class="navbar">
+        <div class="container nav-content">
+            <div class="logo">EduPath<span>TKA</span></div>
+            <div class="creator-badge">Dikembangkan oleh <strong>Henny</strong></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Analisis Minat Akademik & Strategi TKA</h1>
+            <p>Masukkan nilai Matematika, Fisika, Kimia, dan Informatika Anda untuk melihat peringkat kecocokan pada <strong>seluruh jurusan</strong> beserta panduan materi TKA selanjutnya.</p>
+        </section>
+
+        <section class="card input-section">
+            <h2>1. Input Nilai Mata Pelajaran (Skala 0 - 100)</h2>
+            <form id="gradeForm">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="matematika">Matematika</label>
+                        <input type="number" id="matematika" min="0" max="100" step="0.1" placeholder="Contoh: 88" required>
+                        <small>Logika, Aljabar, Kalkulus Dasar</small>
+                    </div>
+                    <div class="input-group">
+                        <label for="fisika">Fisika</label>
+                        <input type="number" id="fisika" min="0" max="100" step="0.1" placeholder="Contoh: 85" required>
+                        <small>Mekanika, Kelistrikan, Termodinamika</small>
+                    </div>
+                    <div class="input-group">
+                        <label for="kimia">Kimia</label>
+                        <input type="number" id="kimia" min="0" max="100" step="0.1" placeholder="Contoh: 82" required>
+                        <small>Stoikiometri, Reaksi Kimia, Organik</small>
+                    </div>
+                    <div class="input-group">
+                        <label for="informatika">Informatika</label>
+                        <input type="number" id="informatika" min="0" max="100" step="0.1" placeholder="Contoh: 92" required>
+                        <small>Algoritma, Pemrograman, Struktur Data</small>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Analisis Semua Jurusan & Materi TKA</button>
+                    <button type="button" id="resetBtn" class="btn-secondary">Reset Nilai</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="resultSection" class="result-section hidden">
+            <div class="card summary-card">
+                <h2>2. Profil Akademik Anda</h2>
+                <div class="stats-grid">
+                    <div class="stat-box"><span class="stat-label">Rata-Rata Nilai</span><span class="stat-value" id="avgScore">0</span></div>
+                    <div class="stat-box"><span class="stat-label">Mata Pelajaran Terkuat</span><span class="stat-value" id="topSubject">-</span></div>
+                    <div class="stat-box"><span class="stat-label">Kategori Potensi</span><span class="stat-value" id="clusterType">-</span></div>
+                </div>
+                <div class="bars-container" id="subjectBars"></div>
+            </div>
+
+            <div class="section-header">
+                <div>
+                    <h2>3. Peringkat Kecocokan Semua Jurusan (<span id="totalMajorsCount">0</span> Jurusan)</h2>
+                    <p>Diurutkan otomatis dari skor kecocokan tertinggi hingga terendah berdasarkan bobot nilai Anda.</p>
+                </div>
+                <div class="filter-group" id="filterButtons">
+                    <button type="button" class="filter-btn active" data-filter="all">Semua Jurusan</button>
+                    <button type="button" class="filter-btn" data-filter="Komputasi & Data">Komputasi & Data</button>
+                    <button type="button" class="filter-btn" data-filter="Teknik & Rekayasa">Teknik & Rekayasa</button>
+                    <button type="button" class="filter-btn" data-filter="Sains & Kimia">Sains & Kimia</button>
+                </div>
+            </div>
+            <div id="majorsContainer" class="majors-grid"></div>
+
+            <div class="card tka-card">
+                <h2>4. Peta Jalan Pelajaran & Fokus TKA Selanjutnya</h2>
+                <p class="subtitle">Strategi pendalaman materi berdasarkan urutan kekuatan nilai dan target jurusan teratas Anda:</p>
+                <div id="tkaRoadmap" class="tka-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 EduPath TKA. Website ini dirancang dan dibuat oleh <strong>Henny</strong>.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const majorsDatabase = [
+                { name: "Teknik Informatika / Ilmu Komputer", category: "Komputasi & Data", weights: { matematika: 0.35, fisika: 0.10, kimia: 0.05, informatika: 0.50 }, description: "Fokus pada rekayasa perangkat lunak, kecerdasan buatan (AI), keamanan siber, dan perancangan algoritma.", courses: "Struktur Data, Algoritma, Sistem Operasi, AI, Jaringan Komputer.", career: "Software Engineer, AI Engineer, Cyber Security Analyst.", tkaFocus: ["Matematika (Logika, Matriks, Peluang)", "Penalaran Algoritmik"] },
+                { name: "Sistem Informasi", category: "Komputasi & Data", weights: { matematika: 0.30, fisika: 0.05, kimia: 0.05, informatika: 0.60 }, description: "Menghubungkan teknologi informasi dengan manajemen bisnis, arsitektur basis data, dan tata kelola TI.", courses: "Basis Data, Analisis Perancangan Sistem, Manajemen Proyek TI.", career: "System Analyst, IT Consultant, Product Manager.", tkaFocus: ["Logika Matematika & Himpunan", "Analisis Data Komputasional"] },
+                { name: "Sains Data (Data Science)", category: "Komputasi & Data", weights: { matematika: 0.45, fisika: 0.05, kimia: 0.05, informatika: 0.45 }, description: "Mengolah data berskala besar menggunakan pemrograman dan statistika untuk menghasilkan prediksi.", courses: "Machine Learning, Data Mining, Statistika Komputasi.", career: "Data Scientist, Data Analyst, Machine Learning Engineer.", tkaFocus: ["Matematika (Statistika, Peluang, Aljabar)", "Logika Pemrograman"] },
+                { name: "Matematika Murni & Statistika / Aktuaria", category: "Komputasi & Data", weights: { matematika: 0.65, fisika: 0.10, kimia: 0.05, informatika: 0.20 }, description: "Mendalami pemodelan matematis, analisis risiko keuangan/asuransi (aktuaria), serta komputasi numerik.", courses: "Kalkulus Lanjut, Matematika Keuangan, Teori Peluang, Aktuaria.", career: "Aktuaris, Quantitative Analyst, Ahli Statistik.", tkaFocus: ["Matematika Saintek (Kalkulus, Kombinatorika, Peluang)", "Penalaran Kuantitatif"] },
+                { name: "Teknik Elektro & Telekomunikasi", category: "Teknik & Rekayasa", weights: { matematika: 0.30, fisika: 0.45, kimia: 0.05, informatika: 0.20 }, description: "Mempelajari sistem kelistrikan, elektronika, sistem kendali otomatis, dan jaringan telekomunikasi.", courses: "Rangkaian Listrik, Elektromagnetika, Mikroprosesor, Sistem Kendali.", career: "Electrical Engineer, Telecommunication Specialist.", tkaFocus: ["Fisika (Listrik Dinamis, Elektromagnetik, Gelombang)", "Matematika (Kalkulus & Vektor)"] },
+                { name: "Teknik Komputer & Robotika (Mekatronika)", category: "Teknik & Rekayasa", weights: { matematika: 0.25, fisika: 0.35, kimia: 0.05, informatika: 0.35 }, description: "Perpaduan antara perangkat keras elektronika, sensor mekanik, dan pemrograman sistem tertanam (IoT).", courses: "Arsitektur Komputer, Robotika, Sistem Tertanam, Sensor & Aktuator.", career: "Robotics Engineer, Embedded System Developer, IoT Architect.", tkaFocus: ["Fisika (Mekanika & Kelistrikan)", "Informatika & Matematika"] },
+                { name: "Teknik Mesin & Dirgantara", category: "Teknik & Rekayasa", weights: { matematika: 0.30, fisika: 0.50, kimia: 0.10, informatika: 0.10 }, description: "Merancang mesin industri, sistem konversi energi, otomotif, hingga aerodinamika pesawat terbang.", courses: "Mekanika Fluida, Termodinamika, Kinematika, Aerodinamika.", career: "Mechanical Engineer, Aerospace Engineer, Automotive R&D.", tkaFocus: ["Fisika (Hukum Newton, Usaha-Energi, Fluida)", "Matematika (Trigonometri & Kalkulus)"] },
+                { name: "Teknik Fisika", category: "Teknik & Rekayasa", weights: { matematika: 0.30, fisika: 0.45, kimia: 0.10, informatika: 0.15 }, description: "Menerapkan prinsip fisika untuk instrumentasi industri, akustik, optik, dan energi terbarukan.", courses: "Fisika Kuantum Terapan, Instrumentasi Industri, Akustik & Optik.", career: "Instrumentation Engineer, Energy Auditor.", tkaFocus: ["Fisika (Optik, Gelombang, Termodinamika)", "Matematika Diferensial"] },
+                { name: "Teknik Sipil & Lingkungan", category: "Teknik & Rekayasa", weights: { matematika: 0.35, fisika: 0.40, kimia: 0.15, informatika: 0.10 }, description: "Merancang infrastruktur gedung, jembatan, bendungan, serta sistem pengelolaan air dan lingkungan.", courses: "Statistika & Mekanika Bahan, Hidrolika, Rekayasa Struktur.", career: "Structural Engineer, Project Manager Konstruksi.", tkaFocus: ["Fisika (Kesetimbangan Benda Tegar, Fluida)", "Matematika (Geometri & Trigonometri)"] },
+                { name: "Teknik Industri", category: "Teknik & Rekayasa", weights: { matematika: 0.40, fisika: 0.20, kimia: 0.10, informatika: 0.30 }, description: "Mengoptimalkan sistem manufaktur, rantai pasok (supply chain), dan efisiensi operasional perusahaan.", courses: "Penelitian Operasional, Manajemen Rantai Pasok, Statistika Industri.", career: "Supply Chain Analyst, Operations Manager, System Optimizer.", tkaFocus: ["Matematika (Program Linear, Statistika)", "Logika Optimasi"] },
+                { name: "Teknik Kimia", category: "Sains & Kimia", weights: { matematika: 0.25, fisika: 0.20, kimia: 0.50, informatika: 0.05 }, description: "Mengubah bahan mentah menjadi produk komersial berskala pabrik seperti bahan bakar dan polimer.", courses: "Neraca Massa & Energi, Termodinamika Teknik Kimia, Kinetika Reaksi.", career: "Process Engineer, Petrochemical Engineer, Plant Manager.", tkaFocus: ["Kimia (Stoikiometri, Termokimia, Kesetimbangan)", "Fisika (Fluida & Kalor)"] },
+                { name: "Teknik Metalurgi & Material", category: "Sains & Kimia", weights: { matematika: 0.20, fisika: 0.35, kimia: 0.40, informatika: 0.05 }, description: "Mempelajari ekstraksi logam, rekayasa sifat material (baja, semikonduktor, baterai), dan korosi.", courses: "Termodinamika Metalurgi, Kristalografi, Material Semikonduktor.", career: "Metallurgist, Materials Engineer, Battery R&D Specialist.", tkaFocus: ["Kimia (Elektrokimia/Redoks, Ikatan Kimia)", "Fisika (Zat Padat & Kalor)"] },
+                { name: "Kimia Murni & Biokimia", category: "Sains & Kimia", weights: { matematika: 0.15, fisika: 0.15, kimia: 0.60, informatika: 0.10 }, description: "Riset mendalam mengenai sintesis senyawa baru, kimia analitik laboratorium, dan proses biokimia.", courses: "Kimia Organik, Kimia Anorganik, Kimia Analitik Instrumen.", career: "Research Chemist, Quality Control Lab, Forensic Analyst.", tkaFocus: ["Kimia (Organik, Asam-Basa, Buffer, Ksp, Redoks)", "Matematika Dasar"] },
+                { name: "Farmasi & Sains Biomedis", category: "Sains & Kimia", weights: { matematika: 0.15, fisika: 0.10, kimia: 0.65, informatika: 0.10 }, description: "Mempelajari formulasi obat-obatan, kimia medisinal, toksikologi, dan analisis senyawa aktif.", courses: "Kimia Medisinal, Farmasetika, Farmakologi Molekuler.", career: "Apoteker Industri, Drug Discovery Researcher.", tkaFocus: ["Kimia (Senyawa Karbon, Stoikiometri Larutan)", "Logaritma & Konsentrasi"] }
+            ];
+
+            const tkaMaterials = {
+                matematika: { title: "Matematika Saintek (TKA)", topics: ["Aljabar & Fungsi: Persamaan kuadrat, eksponen, logaritma, komposisi fungsi.", "Kalkulus Dasar: Limit fungsi, turunan untuk optimasi, dan integral.", "Geometri & Trigonometri: Identitas trigonometri, dimensi tiga, vektor.", "Statistika & Peluang: Kaidah pencacahan, permutasi, kombinasi, peluang."] },
+                fisika: { title: "Fisika (TKA)", topics: ["Mekanika: Kinematika gerak, Hukum Newton, usaha-energi, momentum.", "Fluida & Kalor: Fluida statis/dinamis, suhu, kalor, termodinamika.", "Listrik & Magnet: Listrik statis, rangkaian arus searah, induksi magnetik.", "Gelombang & Optik: Gelombang mekanik, cahaya, dan alat optik."] },
+                kimia: { title: "Kimia (TKA)", topics: ["Kimia Dasar: Struktur atom, ikatan kimia, stoikiometri perhitungan.", "Energetika & Kinetika: Termokimia, laju reaksi, kesetimbangan kimia.", "Kimia Larutan: Asam-basa, larutan penyangga (buffer), hidrolisis, Ksp.", "Redoks & Organik: Penyetaraan redoks, elektrokimia, gugus fungsi karbon."] },
+                informatika: { title: "Logika Komputasi & Penalaran (TKA)", topics: ["Berpikir Komputasional: Dekomposisi masalah, pola, penelusuran algoritma.", "Struktur Data Dasar: Logika array, queue, stack, dan graf.", "Logika Boolean: Gerbang logika, tabel kebenaran, penarikan kesimpulan.", "Penalaran Kuantitatif: Analisis grafik kompleks dan efisiensi langkah."] }
+            };
+
+            let currentRankedMajors = [];
+            let activeFilter = "all";
+
+            document.getElementById("gradeForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                const scores = {
+                    matematika: parseFloat(document.getElementById("matematika").value),
+                    fisika: parseFloat(document.getElementById("fisika").value),
+                    kimia: parseFloat(document.getElementById("kimia").value),
+                    informatika: parseFloat(document.getElementById("informatika").value)
+                };
+                for (let key in scores) {
+                    if (isNaN(scores[key]) || scores[key] < 0 || scores[key] > 100) {
+                        alert("Pastikan semua nilai diisi antara 0 hingga 100.");
+                        return;
+                    }
+                }
+                analyzeResults(scores);
+            });
+
+            document.getElementById("resetBtn").addEventListener("click", function () {
+                document.getElementById("gradeForm").reset();
+                document.getElementById("resultSection").classList.add("hidden");
+            });
+
+            document.querySelectorAll(".filter-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+                    activeFilter = this.getAttribute("data-filter");
+                    renderMajorsList();
+                });
+            });
+
+            function analyzeResults(scores) {
+                const avg = ((scores.matematika + scores.fisika + scores.kimia + scores.informatika) / 4).toFixed(1);
+                const subjectNames = { matematika: "Matematika", fisika: "Fisika", kimia: "Kimia", informatika: "Informatika" };
+                let sortedSubjects = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+                let highestSub = sortedSubjects[0];
+
+                document.getElementById("avgScore").textContent = avg;
+                document.getElementById("topSubject").textContent = `${subjectNames[highestSub]} (${scores[highestSub]})`;
+
+                const clusters = {
+                    informatika: "Komputasi & Rekayasa Perangkat Lunak",
+                    matematika: "Analitik Kuantitatif & Pemodelan",
+                    fisika: "Rekayasa Fisik, Mekanika & Elektro",
+                    kimia: "Sains Molekuler, Material & Proses Kimia"
+                };
+                document.getElementById("clusterType").textContent = clusters[highestSub];
+
+                const barsContainer = document.getElementById("subjectBars");
+                barsContainer.innerHTML = "";
+                sortedSubjects.forEach(sub => {
+                    barsContainer.innerHTML += `<div class="bar-item"><div class="bar-header"><span>${subjectNames[sub]}</span><span>${scores[sub]} / 100</span></div><div class="bar-track"><div class="bar-fill" style="width: ${scores[sub]}%"></div></div></div>`;
+                });
+
+                currentRankedMajors = majorsDatabase.map(major => {
+                    const matchScore = (scores.matematika * major.weights.matematika + scores.fisika * major.weights.fisika + scores.kimia * major.weights.kimia + scores.informatika * major.weights.informatika);
+                    return { ...major, matchScore: matchScore.toFixed(1) };
+                }).sort((a, b) => b.matchScore - a.matchScore);
+
+                activeFilter = "all";
+                document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+                document.querySelector('.filter-btn[data-filter="all"]').classList.add("active");
+
+                renderMajorsList();
+                renderTkaRoadmap(sortedSubjects);
+
+                const resultSection = document.getElementById("resultSection");
+                resultSection.classList.remove("hidden");
+                resultSection.scrollIntoView({ behavior: "smooth" });
+            }
+
+            function renderMajorsList() {
+                const majorsContainer = document.getElementById("majorsContainer");
+                majorsContainer.innerHTML = "";
+                const filteredMajors = activeFilter === "all" ? currentRankedMajors : currentRankedMajors.filter(m => m.category === activeFilter);
+                document.getElementById("totalMajorsCount").textContent = filteredMajors.length;
+
+                filteredMajors.forEach(major => {
+                    const globalRank = currentRankedMajors.findIndex(m => m.name === major.name) + 1;
+                    const isTop3 = globalRank <= 3;
+                    majorsContainer.innerHTML += `
+                        <div class="major-card ${isTop3 ? 'top-match' : ''}">
+                            <div>
+                                <div class="badge-row">
+                                    <span class="match-badge">${globalRank === 1 ? '★ Peringkat #1' : 'Peringkat #' + globalRank} • Cocok ${major.matchScore}%</span>
+                                    <span class="category-tag">${major.category}</span>
+                                </div>
+                                <h3>${major.name}</h3>
+                                <p class="major-desc">${major.description}</p>
+                                <div class="weight-pills">
+                                    <span class="weight-pill">Mat: ${Math.round(major.weights.matematika * 100)}%</span>
+                                    <span class="weight-pill">Fis: ${Math.round(major.weights.fisika * 100)}%</span>
+                                    <span class="weight-pill">Kim: ${Math.round(major.weights.kimia * 100)}%</span>
+                                    <span class="weight-pill">Inf: ${Math.round(major.weights.informatika * 100)}%</span>
+                                </div>
+                            </div>
+                            <div class="major-details">
+                                <p><strong>Mata Kuliah Inti:</strong> ${major.courses}</p>
+                                <p><strong>Prospek Karier:</strong> ${major.career}</p>
+                                <p><strong>Fokus Ujian TKA:</strong> ${major.tkaFocus.join(", ")}</p>
+                            </div>
+                        </div>`;
+                });
+            }
+
+            function renderTkaRoadmap(sortedSubjects) {
+                const tkaRoadmap = document.getElementById("tkaRoadmap");
+                tkaRoadmap.innerHTML = "";
+                const labels = [
+                    { text: "Prioritas 1 (Kekuatan Utama TKA)", high: true },
+                    { text: "Prioritas 2 (Pendukung Utama)", high: true },
+                    { text: "Prioritas 3 (Penguatan Skor)", high: false },
+                    { text: "Prioritas 4 (Evaluasi Nilai Minimum)", high: false }
+                ];
+                sortedSubjects.forEach((sub, index) => {
+                    const mat = tkaMaterials[sub];
+                    const status = labels[index];
+                    const listItems = mat.topics.map(t => `<li>${t}</li>`).join("");
+                    tkaRoadmap.innerHTML += `<div class="tka-item ${status.high ? 'priority-high' : ''}"><span class="tka-tag">${status.text}</span><h4>${mat.title}</h4><ul>${listItems}</ul></div>`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
+```
